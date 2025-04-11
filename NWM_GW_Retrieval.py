@@ -38,19 +38,5 @@ def clean(ddf,USGS_gage,output_filename):
     file_path=os.path.join("NMW_GW_data",f"NWM_gage_{USGS_gage}.parquet")
     ddf=ddf.drop(['elevation','latitude','longitude','order'], axis=1)
     ddf.to_parquet(output_filename, engine="pyarrow", compression="snappy")
-    
-#gonna have the NWM files by USGS id for comparison
-def process_one_gage(USGS_gage, crosstable_path, ds):
-    COMID_individ=USGS_to_NWM(USGS_gage, crosstable_path)
-    if COMID_individ:
-        ddf=extract_baseflow_NWM(COMID_individ, ds)
-        clean(ddf, USGS_gage, f"NWM_gage_{USGS_gage}.parquet")
-        
-def process_gages_parallel(USGS_gages, crosstable_path, ds):
-    tasks=[]
 
-    for gage in USGS_gages:
-        task=dask.delayed(process_one_gage)(gage,crosstable_path,ds)
-        tasks.append(task)
-    dask.compute(*tasks)
     
